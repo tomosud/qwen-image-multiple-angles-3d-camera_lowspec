@@ -400,7 +400,7 @@ class CameraControl3D(gr.HTML):
                     cameraGroup.lookAt(CENTER);
                     
                     azimuthHandle.position.set(AZIMUTH_RADIUS * Math.sin(azRad), 0.05, AZIMUTH_RADIUS * Math.cos(azRad));
-                    elevationHandle.position.set(0, ELEVATION_RADIUS * Math.sin(elRad) + CENTER.y, ELEVATION_RADIUS * Math.cos(elRad));
+                    elevationHandle.position.set(-0.8, ELEVATION_RADIUS * Math.sin(elRad) + CENTER.y, ELEVATION_RADIUS * Math.cos(elRad));
                     
                     const orangeDist = distance + 0.5;
                     distanceHandle.position.set(
@@ -473,7 +473,7 @@ class CameraControl3D(gr.HTML):
                                 if (azimuthAngle < 0) azimuthAngle += 360;
                             }
                         } else if (dragTarget.userData.type === 'elevation') {
-                            const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0);
+                            const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), -0.8);
                             if (raycaster.ray.intersectPlane(plane, intersection)) {
                                 const relY = intersection.y - CENTER.y;
                                 const relZ = intersection.z;
