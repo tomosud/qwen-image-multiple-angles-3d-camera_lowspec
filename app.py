@@ -175,10 +175,6 @@ class CameraControl3D(gr.HTML):
         html_template = """
         <div id="camera-control-wrapper" style="width: 100%; height: 450px; position: relative; background: #1a1a1a; border-radius: 12px; overflow: hidden;">
             <div id="prompt-overlay" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #00ff88; white-space: nowrap; z-index: 10;"></div>
-            <div id="upload-hint" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; font-family: sans-serif; font-size: 14px; text-align: center; pointer-events: none; z-index: 5;">
-                <div style="font-size: 32px; margin-bottom: 8px;">📷</div>
-                Upload an image to preview
-            </div>
         </div>
         """
         
@@ -186,7 +182,6 @@ class CameraControl3D(gr.HTML):
         (() => {
             const wrapper = element.querySelector('#camera-control-wrapper');
             const promptOverlay = element.querySelector('#prompt-overlay');
-            const uploadHint = element.querySelector('#upload-hint');
             
             // Wait for THREE to load
             const initScene = () => {
@@ -283,7 +278,6 @@ class CameraControl3D(gr.HTML):
                         // Reset to placeholder
                         planeMaterial.map = createPlaceholderTexture();
                         planeMaterial.needsUpdate = true;
-                        uploadHint.style.display = 'block';
                         // Reset plane to square
                         scene.remove(targetPlane);
                         targetPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), planeMaterial);
@@ -291,8 +285,6 @@ class CameraControl3D(gr.HTML):
                         scene.add(targetPlane);
                         return;
                     }
-                    
-                    uploadHint.style.display = 'none';
                     
                     const loader = new THREE.TextureLoader();
                     loader.crossOrigin = 'anonymous';
