@@ -214,7 +214,7 @@ class CameraControl3D(gr.HTML):
                 
                 // Constants - reduced distances for tighter framing
                 const CENTER = new THREE.Vector3(0, 0.75, 0);
-                const BASE_DISTANCE = 2.0;
+                const BASE_DISTANCE = 2.8;
                 const AZIMUTH_RADIUS = 2.4;
                 const ELEVATION_RADIUS = 1.8;
                 
