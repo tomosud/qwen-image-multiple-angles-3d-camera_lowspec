@@ -58,11 +58,11 @@ ELEVATION_MAP = {
     60: "high-angle shot"
 }
 
-# Distance mappings (3 positions)
+# Distance mappings (3 positions) - reduced wide shot
 DISTANCE_MAP = {
     0.6: "close-up",
     1.0: "medium shot",
-    1.8: "wide shot"
+    1.4: "wide shot"
 }
 
 
@@ -195,7 +195,7 @@ class CameraControl3D(gr.HTML):
                 scene.background = new THREE.Color(0x1a1a1a);
                 
                 const camera = new THREE.PerspectiveCamera(50, wrapper.clientWidth / wrapper.clientHeight, 0.1, 1000);
-                camera.position.set(6, 4, 6);
+                camera.position.set(4.5, 3, 4.5);
                 camera.lookAt(0, 0.75, 0);
                 
                 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -212,21 +212,21 @@ class CameraControl3D(gr.HTML):
                 // Grid
                 scene.add(new THREE.GridHelper(8, 16, 0x333333, 0x222222));
                 
-                // Constants
+                // Constants - reduced distances for tighter framing
                 const CENTER = new THREE.Vector3(0, 0.75, 0);
-                const BASE_DISTANCE = 2.5;
-                const AZIMUTH_RADIUS = 2.8;
-                const ELEVATION_RADIUS = 2.0;
+                const BASE_DISTANCE = 2.0;
+                const AZIMUTH_RADIUS = 2.4;
+                const ELEVATION_RADIUS = 1.8;
                 
                 // State
                 let azimuthAngle = props.value?.azimuth || 0;
                 let elevationAngle = props.value?.elevation || 0;
                 let distanceFactor = props.value?.distance || 1.0;
                 
-                // Mappings
+                // Mappings - reduced wide shot multiplier
                 const azimuthSteps = [0, 45, 90, 135, 180, 225, 270, 315];
                 const elevationSteps = [-30, 0, 30, 60];
-                const distanceSteps = [0.6, 1.0, 1.8];
+                const distanceSteps = [0.6, 1.0, 1.4];
                 
                 const azimuthNames = {
                     0: 'front view', 45: 'front-right quarter view', 90: 'right side view',
@@ -234,7 +234,7 @@ class CameraControl3D(gr.HTML):
                     270: 'left side view', 315: 'front-left quarter view'
                 };
                 const elevationNames = { '-30': 'low-angle shot', '0': 'eye-level shot', '30': 'elevated shot', '60': 'high-angle shot' };
-                const distanceNames = { '0.6': 'close-up', '1': 'medium shot', '1.8': 'wide shot' };
+                const distanceNames = { '0.6': 'close-up', '1': 'medium shot', '1.4': 'wide shot' };
                 
                 function snapToNearest(value, steps) {
                     return steps.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
@@ -481,7 +481,7 @@ class CameraControl3D(gr.HTML):
                             }
                         } else if (dragTarget.userData.type === 'distance') {
                             const deltaY = mouse.y - dragStartMouse.y;
-                            distanceFactor = THREE.MathUtils.clamp(dragStartDistance - deltaY * 1.5, 0.6, 1.8);
+                            distanceFactor = THREE.MathUtils.clamp(dragStartDistance - deltaY * 1.5, 0.6, 1.4);
                         }
                         updatePositions();
                     } else {
@@ -571,12 +571,25 @@ class CameraControl3D(gr.HTML):
                 
                 wrapper._updateTexture = updateTextureFromUrl;
                 
-                // Watch for imageUrl prop changes
+                // Watch for prop changes (imageUrl and value)
                 let lastImageUrl = props.imageUrl;
+                let lastValue = JSON.stringify(props.value);
                 setInterval(() => {
+                    // Check imageUrl changes
                     if (props.imageUrl !== lastImageUrl) {
                         lastImageUrl = props.imageUrl;
                         updateTextureFromUrl(props.imageUrl);
+                    }
+                    // Check value changes (from sliders)
+                    const currentValue = JSON.stringify(props.value);
+                    if (currentValue !== lastValue) {
+                        lastValue = currentValue;
+                        if (props.value && typeof props.value === 'object') {
+                            azimuthAngle = props.value.azimuth ?? azimuthAngle;
+                            elevationAngle = props.value.elevation ?? elevationAngle;
+                            distanceFactor = props.value.distance ?? distanceFactor;
+                            updatePositions();
+                        }
                     }
                 }, 100);
             };
@@ -646,10 +659,10 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
             distance_slider = gr.Slider(
                 label="Distance",
                 minimum=0.6,
-                maximum=1.8,
-                step=0.6,
+                maximum=1.4,
+                step=0.4,
                 value=1.0,
-                info="0.6=close-up, 1.0=medium, 1.8=wide"
+                info="0.6=close-up, 1.0=medium, 1.4=wide"
             )
             
             prompt_preview = gr.Textbox(
