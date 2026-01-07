@@ -6,7 +6,8 @@ import spaces
 
 from PIL import Image
 from diffusers import FlowMatchEulerDiscreteScheduler, QwenImageEditPlusPipeline
-
+#from qwenimage.pipeline_qwenimage_edit_plus import QwenImageEditPlusPipeline
+#from qwenimage.transformer_qwenimage import QwenImageTransformer2DModel
 
 MAX_SEED = np.iinfo(np.int32).max
 
@@ -165,14 +166,19 @@ class CameraControl3D(gr.HTML):
     """
     A 3D camera control component using Three.js.
     Outputs: { azimuth: number, elevation: number, distance: number }
+    Accepts imageUrl prop to display user's uploaded image on the plane.
     """
-    def __init__(self, value=None, **kwargs):
+    def __init__(self, value=None, imageUrl=None, **kwargs):
         if value is None:
             value = {"azimuth": 0, "elevation": 0, "distance": 1.0}
         
         html_template = """
         <div id="camera-control-wrapper" style="width: 100%; height: 450px; position: relative; background: #1a1a1a; border-radius: 12px; overflow: hidden;">
             <div id="prompt-overlay" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); padding: 8px 16px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #00ff88; white-space: nowrap; z-index: 10;"></div>
+            <div id="upload-hint" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; font-family: sans-serif; font-size: 14px; text-align: center; pointer-events: none; z-index: 5;">
+                <div style="font-size: 32px; margin-bottom: 8px;">📷</div>
+                Upload an image to preview
+            </div>
         </div>
         """
         
@@ -180,6 +186,7 @@ class CameraControl3D(gr.HTML):
         (() => {
             const wrapper = element.querySelector('#camera-control-wrapper');
             const promptOverlay = element.querySelector('#prompt-overlay');
+            const uploadHint = element.querySelector('#upload-hint');
             
             // Wait for THREE to load
             const initScene = () => {
@@ -202,8 +209,8 @@ class CameraControl3D(gr.HTML):
                 wrapper.insertBefore(renderer.domElement, promptOverlay);
                 
                 // Lighting
-                scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
                 dirLight.position.set(5, 10, 5);
                 scene.add(dirLight);
                 
@@ -238,35 +245,93 @@ class CameraControl3D(gr.HTML):
                     return steps.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
                 }
                 
-                // Target image plane
-                const imgCanvas = document.createElement('canvas');
-                imgCanvas.width = 256;
-                imgCanvas.height = 256;
-                const ctx = imgCanvas.getContext('2d');
-                ctx.fillStyle = '#3a3a4a';
-                ctx.fillRect(0, 0, 256, 256);
-                ctx.fillStyle = '#ffcc99';
-                ctx.beginPath();
-                ctx.arc(128, 128, 80, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#333';
-                ctx.beginPath();
-                ctx.arc(100, 110, 10, 0, Math.PI * 2);
-                ctx.arc(156, 110, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.arc(128, 130, 35, 0.2, Math.PI - 0.2);
-                ctx.stroke();
+                // Create placeholder texture (smiley face)
+                function createPlaceholderTexture() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 256;
+                    canvas.height = 256;
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#3a3a4a';
+                    ctx.fillRect(0, 0, 256, 256);
+                    ctx.fillStyle = '#ffcc99';
+                    ctx.beginPath();
+                    ctx.arc(128, 128, 80, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#333';
+                    ctx.beginPath();
+                    ctx.arc(100, 110, 10, 0, Math.PI * 2);
+                    ctx.arc(156, 110, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(128, 130, 35, 0.2, Math.PI - 0.2);
+                    ctx.stroke();
+                    return new THREE.CanvasTexture(canvas);
+                }
                 
-                const texture = new THREE.CanvasTexture(imgCanvas);
-                const targetPlane = new THREE.Mesh(
-                    new THREE.PlaneGeometry(1.2, 1.2),
-                    new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })
-                );
+                // Target image plane
+                let currentTexture = createPlaceholderTexture();
+                const planeMaterial = new THREE.MeshBasicMaterial({ map: currentTexture, side: THREE.DoubleSide });
+                let targetPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), planeMaterial);
                 targetPlane.position.copy(CENTER);
                 scene.add(targetPlane);
+                
+                // Function to update texture from image URL
+                function updateTextureFromUrl(url) {
+                    if (!url) {
+                        // Reset to placeholder
+                        planeMaterial.map = createPlaceholderTexture();
+                        planeMaterial.needsUpdate = true;
+                        uploadHint.style.display = 'block';
+                        // Reset plane to square
+                        scene.remove(targetPlane);
+                        targetPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), planeMaterial);
+                        targetPlane.position.copy(CENTER);
+                        scene.add(targetPlane);
+                        return;
+                    }
+                    
+                    uploadHint.style.display = 'none';
+                    
+                    const loader = new THREE.TextureLoader();
+                    loader.crossOrigin = 'anonymous';
+                    loader.load(url, (texture) => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                        planeMaterial.map = texture;
+                        planeMaterial.needsUpdate = true;
+                        
+                        // Adjust plane aspect ratio to match image
+                        const img = texture.image;
+                        if (img && img.width && img.height) {
+                            const aspect = img.width / img.height;
+                            const maxSize = 1.5;
+                            let planeWidth, planeHeight;
+                            if (aspect > 1) {
+                                planeWidth = maxSize;
+                                planeHeight = maxSize / aspect;
+                            } else {
+                                planeHeight = maxSize;
+                                planeWidth = maxSize * aspect;
+                            }
+                            scene.remove(targetPlane);
+                            targetPlane = new THREE.Mesh(
+                                new THREE.PlaneGeometry(planeWidth, planeHeight),
+                                planeMaterial
+                            );
+                            targetPlane.position.copy(CENTER);
+                            scene.add(targetPlane);
+                        }
+                    }, undefined, (err) => {
+                        console.error('Failed to load texture:', err);
+                    });
+                }
+                
+                // Check for initial imageUrl
+                if (props.imageUrl) {
+                    updateTextureFromUrl(props.imageUrl);
+                }
                 
                 // Camera model
                 const cameraGroup = new THREE.Group();
@@ -502,7 +567,7 @@ class CameraControl3D(gr.HTML):
                     renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
                 }).observe(wrapper);
                 
-                // Store update function for external calls
+                // Store update functions for external calls
                 wrapper._updateFromProps = (newVal) => {
                     if (newVal && typeof newVal === 'object') {
                         azimuthAngle = newVal.azimuth ?? azimuthAngle;
@@ -511,6 +576,17 @@ class CameraControl3D(gr.HTML):
                         updatePositions();
                     }
                 };
+                
+                wrapper._updateTexture = updateTextureFromUrl;
+                
+                // Watch for imageUrl prop changes
+                let lastImageUrl = props.imageUrl;
+                setInterval(() => {
+                    if (props.imageUrl !== lastImageUrl) {
+                        lastImageUrl = props.imageUrl;
+                        updateTextureFromUrl(props.imageUrl);
+                    }
+                }, 100);
             };
             
             initScene();
@@ -521,6 +597,7 @@ class CameraControl3D(gr.HTML):
             value=value,
             html_template=html_template,
             js_on_load=js_on_load,
+            imageUrl=imageUrl,
             **kwargs
         )
 
@@ -624,6 +701,19 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
         """Sync slider changes to 3D control."""
         return {"azimuth": azimuth, "elevation": elevation, "distance": distance}
     
+    def update_3d_image(image):
+        """Update the 3D component with the uploaded image."""
+        if image is None:
+            return gr.update(imageUrl=None)
+        # Convert PIL image to base64 data URL
+        import base64
+        from io import BytesIO
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        data_url = f"data:image/png;base64,{img_str}"
+        return gr.update(imageUrl=data_url)
+    
     # Slider -> Prompt preview
     for slider in [azimuth_slider, elevation_slider, distance_slider]:
         slider.change(
@@ -654,11 +744,21 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
         outputs=[result, seed, prompt_preview]
     )
     
-    # Image upload -> update dimensions
+    # Image upload -> update dimensions AND update 3D preview
     image.upload(
         fn=update_dimensions_on_upload,
         inputs=[image],
         outputs=[width, height]
+    ).then(
+        fn=update_3d_image,
+        inputs=[image],
+        outputs=[camera_3d]
+    )
+    
+    # Also handle image clear
+    image.clear(
+        fn=lambda: gr.update(imageUrl=None),
+        outputs=[camera_3d]
     )
     
     # Examples
@@ -676,4 +776,4 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
 
 if __name__ == "__main__":
     head = '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
-    demo.launch(head=head)
+    demo.launch()
