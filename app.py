@@ -359,7 +359,7 @@ class CameraControl3D(gr.HTML):
                 const arcPoints = [];
                 for (let i = 0; i <= 32; i++) {
                     const angle = THREE.MathUtils.degToRad(-30 + (90 * i / 32));
-                    arcPoints.push(new THREE.Vector3(0, ELEVATION_RADIUS * Math.sin(angle) + CENTER.y, ELEVATION_RADIUS * Math.cos(angle)));
+                    arcPoints.push(new THREE.Vector3(-0.8, ELEVATION_RADIUS * Math.sin(angle) + CENTER.y, ELEVATION_RADIUS * Math.cos(angle)));
                 }
                 const arcCurve = new THREE.CatmullRomCurve3(arcPoints);
                 const elevationArc = new THREE.Mesh(
