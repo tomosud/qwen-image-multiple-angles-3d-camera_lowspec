@@ -1,0 +1,11 @@
+git+https://github.com/huggingface/diffusers.git
+
+transformers
+accelerate
+safetensors
+sentencepiece
+dashscope
+kernels
+torchvision
+peft
+torchao==0.11.0
