@@ -195,7 +195,7 @@ class CameraControl3D(gr.HTML):
                 scene.background = new THREE.Color(0x1a1a1a);
                 
                 const camera = new THREE.PerspectiveCamera(50, wrapper.clientWidth / wrapper.clientHeight, 0.1, 1000);
-                camera.position.set(5.5, 3, 5.5);
+                camera.position.set(4.5, 3, 4.5);
                 camera.lookAt(0, 0.75, 0);
                 
                 const renderer = new THREE.WebGLRenderer({ antialias: true });
