@@ -1,6 +1,6 @@
 ---
-title: Multiple Angles
-emoji: 🐢
+title: Qwen Image Multiple Angles 3D Camera
+emoji: 🎥
 colorFrom: indigo
 colorTo: purple
 sdk: gradio
