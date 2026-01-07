@@ -767,17 +767,17 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
     )
     
     # Examples
-    gr.Examples(
-        examples=[
-            ["example1.jpg", 90, 0, 1.0],
-            ["example2.jpg", 0, 30, 0.6],
-            ["example3.jpg", 180, -30, 1.8],
-        ],
-        inputs=[image, azimuth_slider, elevation_slider, distance_slider],
-        outputs=[result, seed, prompt_preview],
-        fn=lambda img, az, el, dist: infer_camera_edit(img, az, el, dist),
-        cache_examples=False,
-    )
+    # gr.Examples(
+    #    examples=[
+    #        ["example1.jpg", 90, 0, 1.0],
+    #        ["example2.jpg", 0, 30, 0.6],
+    #        ["example3.jpg", 180, -30, 1.8],
+    #    ],
+    #    inputs=[image, azimuth_slider, elevation_slider, distance_slider],
+    #    outputs=[result, seed, prompt_preview],
+    #    fn=lambda img, az, el, dist: infer_camera_edit(img, az, el, dist),
+    #    cache_examples=False,
+    #)
 
 if __name__ == "__main__":
     head = '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
