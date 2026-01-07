@@ -635,6 +635,8 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
                 value={"azimuth": 0, "elevation": 0, "distance": 1.0},
                 elem_id="camera-3d-control"
             )
+
+            run_btn = gr.Button("🚀 Generate", variant="primary", size="lg")
             
             gr.Markdown("### 🎚️ Slider Controls")
             
@@ -670,8 +672,6 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
                 value="<sks> front view eye-level shot medium shot",
                 interactive=False
             )
-            
-            run_btn = gr.Button("🚀 Generate", variant="primary", size="lg")
         
         # Right column: Output
         with gr.Column(scale=1):
@@ -781,5 +781,4 @@ with gr.Blocks(css=css, theme=gr.themes.Soft()) as demo:
 
 if __name__ == "__main__":
     head = '<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>'
-    css = '.fillable{max-width: 1200px !important}'
     demo.launch(head=head, css=css)
