@@ -327,12 +327,12 @@ class CameraControl3D(gr.HTML):
                 
                 // Camera model
                 const cameraGroup = new THREE.Group();
-                const bodyMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8, roughness: 0.2 });
+                const bodyMat = new THREE.MeshStandardMaterial({ color: 0x6699cc, metalness: 0.5, roughness: 0.3 });
                 const body = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.22, 0.38), bodyMat);
                 cameraGroup.add(body);
                 const lens = new THREE.Mesh(
                     new THREE.CylinderGeometry(0.09, 0.11, 0.18, 16),
-                    new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9, roughness: 0.1 })
+                    new THREE.MeshStandardMaterial({ color: 0x334455, metalness: 0.9, roughness: 0.1 })
                 );
                 lens.rotation.x = Math.PI / 2;
                 lens.position.z = 0.26;
