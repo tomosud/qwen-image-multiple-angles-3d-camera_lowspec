@@ -402,13 +402,13 @@ class CameraControl3D(gr.HTML):
                     azimuthHandle.position.set(AZIMUTH_RADIUS * Math.sin(azRad), 0.05, AZIMUTH_RADIUS * Math.cos(azRad));
                     elevationHandle.position.set(-0.8, ELEVATION_RADIUS * Math.sin(elRad) + CENTER.y, ELEVATION_RADIUS * Math.cos(elRad));
                     
-                    const orangeDist = distance + 0.5;
+                    const orangeDist = distance - 0.5;
                     distanceHandle.position.set(
                         orangeDist * Math.sin(azRad) * Math.cos(elRad),
                         orangeDist * Math.sin(elRad) + CENTER.y,
                         orangeDist * Math.cos(azRad) * Math.cos(elRad)
                     );
-                    distanceLineGeo.setFromPoints([CENTER.clone(), distanceHandle.position.clone()]);
+                    distanceLineGeo.setFromPoints([cameraGroup.position.clone(), CENTER.clone()]);
                     
                     // Update prompt
                     const azSnap = snapToNearest(azimuthAngle, azimuthSteps);
