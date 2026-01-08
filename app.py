@@ -58,11 +58,11 @@ ELEVATION_MAP = {
     60: "high-angle shot"
 }
 
-# Distance mappings (3 positions) - reduced wide shot
+# Distance mappings (3 positions)
 DISTANCE_MAP = {
     0.6: "close-up",
     1.0: "medium shot",
-    1.4: "wide shot"
+    1.8: "wide shot"
 }
 
 
