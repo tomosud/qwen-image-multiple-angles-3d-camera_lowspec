@@ -332,7 +332,7 @@ class CameraControl3D(gr.HTML):
                 cameraGroup.add(body);
                 const lens = new THREE.Mesh(
                     new THREE.CylinderGeometry(0.09, 0.11, 0.18, 16),
-                    new THREE.MeshStandardMaterial({ color: 0x334455, metalness: 0.9, roughness: 0.1 })
+                    new THREE.MeshStandardMaterial({ color: 0x6699cc, metalness: 0.9, roughness: 0.1 })
                 );
                 lens.rotation.x = Math.PI / 2;
                 lens.position.z = 0.26;
