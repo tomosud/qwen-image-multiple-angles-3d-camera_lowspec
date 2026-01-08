@@ -541,6 +541,68 @@ class CameraControl3D(gr.HTML):
                 
                 canvas.addEventListener('mouseup', onMouseUp);
                 canvas.addEventListener('mouseleave', onMouseUp);
+
+                // Touch support for mobile
+                canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                    
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects([azimuthHandle, elevationHandle, distanceHandle]);
+                    
+                    if (intersects.length > 0) {
+                        isDragging = true;
+                        dragTarget = intersects[0].object;
+                        dragTarget.material.emissiveIntensity = 1.0;
+                        dragTarget.scale.setScalar(1.3);
+                        dragStartMouse.copy(mouse);
+                        dragStartDistance = distanceFactor;
+                    }
+                }, { passive: false });
+                
+                canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
+                    
+                    if (isDragging && dragTarget) {
+                        raycaster.setFromCamera(mouse, camera);
+                        
+                        if (dragTarget.userData.type === 'azimuth') {
+                            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.05);
+                            if (raycaster.ray.intersectPlane(plane, intersection)) {
+                                azimuthAngle = THREE.MathUtils.radToDeg(Math.atan2(intersection.x, intersection.z));
+                                if (azimuthAngle < 0) azimuthAngle += 360;
+                            }
+                        } else if (dragTarget.userData.type === 'elevation') {
+                            const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), -0.8);
+                            if (raycaster.ray.intersectPlane(plane, intersection)) {
+                                const relY = intersection.y - CENTER.y;
+                                const relZ = intersection.z;
+                                elevationAngle = THREE.MathUtils.clamp(THREE.MathUtils.radToDeg(Math.atan2(relY, relZ)), -30, 60);
+                            }
+                        } else if (dragTarget.userData.type === 'distance') {
+                            const deltaY = mouse.y - dragStartMouse.y;
+                            distanceFactor = THREE.MathUtils.clamp(dragStartDistance - deltaY * 1.5, 0.6, 1.4);
+                        }
+                        updatePositions();
+                    }
+                }, { passive: false });
+                
+                canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    onMouseUp();
+                }, { passive: false });
+                
+                canvas.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    onMouseUp();
+                }, { passive: false });
                 
                 // Initial update
                 updatePositions();
