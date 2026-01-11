@@ -5,7 +5,7 @@ torchvision==0.21.0
 torchaudio==2.6.0
 
 # Triton for Windows (GPU kernel optimization)
-triton-windows<3.6
+# triton-windows<3.6  # torchao無効化のため不要
 
 # Diffusers (latest from git)
 git+https://github.com/huggingface/diffusers.git
@@ -16,7 +16,7 @@ accelerate
 safetensors
 sentencepiece
 peft
-torchao
+# torchao  # オプショナル: Windows環境ではTriton依存のため無効化（量子化なしでbfloat16で動作）
 
 # Gradio for UI
 gradio
@@ -29,3 +29,6 @@ dashscope
 kernels
 pillow
 numpy
+
+# GGUF quantization support
+gguf
