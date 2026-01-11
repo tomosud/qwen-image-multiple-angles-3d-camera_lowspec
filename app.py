@@ -2,7 +2,7 @@ import gradio as gr
 import numpy as np
 import random
 import torch
-import spaces
+# import spaces  # ローカル実行用: Hugging Face Spaces専用モジュールのためコメントアウト
 
 from PIL import Image
 from diffusers import FlowMatchEulerDiscreteScheduler, QwenImageEditPlusPipeline
@@ -95,7 +95,7 @@ def build_camera_prompt(azimuth: float, elevation: float, distance: float) -> st
     return f"<sks> {azimuth_name} {elevation_name} {distance_name}"
 
 
-@spaces.GPU
+# @spaces.GPU  # ローカル実行用: Hugging Face Spaces上でのGPU動的割り当てデコレーター（ローカルでは不要）
 def infer_camera_edit(
     image: Image.Image,
     azimuth: float = 0.0,

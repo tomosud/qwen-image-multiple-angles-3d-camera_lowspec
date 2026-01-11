@@ -4,6 +4,9 @@ torch==2.6.0
 torchvision==0.21.0
 torchaudio==2.6.0
 
+# Triton for Windows (GPU kernel optimization)
+triton-windows<3.6
+
 # Diffusers (latest from git)
 git+https://github.com/huggingface/diffusers.git
 
