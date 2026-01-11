@@ -1,11 +1,28 @@
+# PyTorch with CUDA 12.6
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.6.0
+torchvision==0.21.0
+torchaudio==2.6.0
+
+# Diffusers (latest from git)
 git+https://github.com/huggingface/diffusers.git
 
+# Core ML libraries
 transformers
 accelerate
 safetensors
 sentencepiece
-dashscope
-kernels
-torchvision
 peft
 torchao==0.11.0
+
+# Gradio for UI
+gradio
+
+# Hugging Face Hub
+huggingface_hub
+
+# Additional dependencies
+dashscope
+kernels
+pillow
+numpy
