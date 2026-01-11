@@ -13,7 +13,7 @@ accelerate
 safetensors
 sentencepiece
 peft
-torchao==0.11.0
+torchao
 
 # Gradio for UI
 gradio
