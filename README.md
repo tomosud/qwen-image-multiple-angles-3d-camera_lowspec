@@ -4,6 +4,9 @@
 
 このリポジトリは [multimodalart/qwen-image-multiple-angles-3d-camera](https://huggingface.co/spaces/multimodalart/qwen-image-multiple-angles-3d-camera) のフォークで、Windows環境かつ低スペックGPUで動作するように最適化されています。
 
+<img width="1286" height="739" alt="image" src="https://github.com/user-attachments/assets/dda9a816-535b-4c85-9105-72a1368df98a" />
+
+
 ## ✨ 主な変更点
 
 - **GGUF Q2_K量子化**: 40GB → 7.47GB（約80%削減）
